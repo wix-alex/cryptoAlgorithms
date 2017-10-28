@@ -3,12 +3,6 @@
   "version": "0.0.1",
   "description": "cr",
   "repository": "https://github.com/arnaucode/cr",
-  "contributors": [
-    {
-      "name": "Arnau",
-      "web": "arnaucode.com"
-    }
-  ],
   "main": "server.js",
   "scripts": {
     "prestart": "npm install",

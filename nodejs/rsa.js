@@ -8,48 +8,51 @@ const numbers = [1,2,3,4,5,6,7,8,9,10,11,12,13,
           28,29,30,31];
 
 
-var p = bignum.prime(20);
-var q = bignum.prime(20);
-//if I put p q bigger, it takes too much time to decrypt
-p=15;
-q=17;
-var n = p * q;
-var phi = (p - 1) * (q - 1);
-var e = 65537;
-e=101;
+var keyPair = generateKeyPair();
+var pubK = keyPair.pubK;
+var privK = keyPair.privK;
+console.log(keyPair);
 
-console.log("p=" + p + ", q=" + q);
-console.log("n=" + n);
-console.log("phi=" + phi);
-console.log("e=" + e);
-
-var pubK = {
-    e: e,
-    n: n
-};
-console.log("pubK:");
-console.log(pubK);
-
-var d = modinv(e, phi);
-console.log("d=" + d);
-
-var privK = {
-    d: d,
-    n: n
-};
-console.log("privK:");
-console.log(privK);
-
-var m = "hola com va, sembla que aixo funciona be";
+var m = "hola com va, sembla que aixo funciona be!";
 console.log("m=" + m);
-//m is the text
+
 var c = encryptText(m, pubK);
 console.log("c encrypted: " + c);
-//c is the numbers
+
 var m2 = decryptNumbers(c, privK);
 console.log("m decrypted: " + m2);
 
 
+function generateKeyPair() {
+    var p = bignum.prime(20);
+    var q = bignum.prime(20);
+    //if I put p q bigger, it takes too much time to decrypt
+    p=15;
+    q=17;
+    var n = p * q;
+    var phi = (p - 1) * (q - 1);
+    var e = 65537;
+    e=101;
+
+    /*console.log("p=" + p + ", q=" + q);
+    console.log("n=" + n);
+    console.log("phi=" + phi);
+    console.log("e=" + e);*/
+
+    var pubK = {
+        e: e,
+        n: n
+    };
+
+    var d = modinv(e, phi);
+    //console.log("d=" + d);
+
+    var privK = {
+        d: d,
+        n: n
+    };
+    return({"pubK": pubK, "privK": privK});
+}
 
 function encryptText(m, pubK) {
     chars = m.split('');
