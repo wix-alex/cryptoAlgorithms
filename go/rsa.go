@@ -1,67 +1,77 @@
 package main
 
 import (
+	"fmt"
 	"math/big"
 	"math/rand"
 	"time"
 )
 
-type PublicKey struct {
+type RSAPublicKey struct {
 	E *big.Int `json:"e"`
 	N *big.Int `json:"n"`
 }
-type PrivateKey struct {
+type RSAPrivateKey struct {
 	D *big.Int `json:"d"`
 	N *big.Int `json:"n"`
 }
 
-const maxPrime = 1000
+type RSA struct {
+	PubK  RSAPublicKey
+	PrivK RSAPrivateKey
+}
 
-func generateKeyPair() (PublicKey, PrivateKey) {
+func (rsa RSA) generateKeyPair() RSA {
 
 	rand.Seed(time.Now().Unix())
-	p := randPrime(0, maxPrime)
-	q := randPrime(0, maxPrime)
+	p := randPrime(minPrime, maxPrime)
+	q := randPrime(minPrime, maxPrime)
+	fmt.Print("p:")
+	fmt.Println(p)
+	fmt.Print("q:")
+	fmt.Println(q)
 
 	n := p * q
 	phi := (p - 1) * (q - 1)
 	e := 65537
-	var pubK PublicKey
+	var pubK RSAPublicKey
 	pubK.E = big.NewInt(int64(e))
 	pubK.N = big.NewInt(int64(n))
 
 	d := new(big.Int).ModInverse(big.NewInt(int64(e)), big.NewInt(int64(phi)))
 
-	var privK PrivateKey
+	var privK RSAPrivateKey
 	privK.D = d
 	privK.N = big.NewInt(int64(n))
 
-	return pubK, privK
+	rsa.PubK = pubK
+	rsa.PrivK = privK
+	return rsa
 }
-func encryptM(m string, pubK PublicKey) []int {
+func (rsa RSA) encryptM(m string, pubK RSAPublicKey) []int {
 	var c []int
 	mBytes := []byte(m)
 	for _, byte := range mBytes {
-		c = append(c, encrypt(int(byte), pubK))
+		c = append(c, rsa.encrypt(int(byte), pubK))
 	}
 	return c
 }
-func decryptC(c []int, privK PrivateKey) string {
+func (rsa RSA) decryptC(c []int, privK RSAPrivateKey) string {
 	var m string
 	var mBytes []byte
 	for _, indC := range c {
-		mBytes = append(mBytes, byte(decrypt(indC, privK)))
+		mBytes = append(mBytes, byte(rsa.decrypt(indC, privK)))
 	}
 	m = string(mBytes)
 	return m
 }
-func encrypt(char int, pubK PublicKey) int {
+func (rsa RSA) encrypt(char int, pubK RSAPublicKey) int {
 	charBig := big.NewInt(int64(char))
 	Me := charBig.Exp(charBig, pubK.E, nil)
 	c := Me.Mod(Me, pubK.N)
 	return int(c.Int64())
 }
-func decrypt(val int, privK PrivateKey) int {
+func (rsa RSA) decrypt(val int, privK RSAPrivateKey) int {
 	valBig := big.NewInt(int64(val))
 	Cd := valBig.Exp(valBig, privK.D, nil)
 	m := Cd.Mod(Cd, privK.N)

@@ -8,22 +8,8 @@ const numbers = [1,2,3,4,5,6,7,8,9,10,11,12,13,
           28,29,30,31];
 
 
-var keyPair = generateKeyPair();
-var pubK = keyPair.pubK;
-var privK = keyPair.privK;
-console.log(keyPair);
 
-var m = "hola com va, sembla que aixo funciona be!";
-console.log("m=" + m);
-
-var c = encryptText(m, pubK);
-console.log("c encrypted: " + c);
-
-var m2 = decryptNumbers(c, privK);
-console.log("m decrypted: " + m2);
-
-
-function generateKeyPair() {
+function generateRSAKeyPair() {
     var p = bignum.prime(20);
     var q = bignum.prime(20);
     //if I put p q bigger, it takes too much time to decrypt
@@ -120,3 +106,9 @@ function modinv(a, m) {
     }
     return u;
 }
+
+module.exports = {
+    generateKeys : generateRSAKeyPair,
+    encrypt: encryptText,
+    decrypt: decryptNumbers
+};

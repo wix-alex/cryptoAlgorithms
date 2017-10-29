@@ -1,12 +1,12 @@
 {
-  "name": "cr",
+  "name": "cryptoAlgorithms",
   "version": "0.0.1",
-  "description": "cr",
-  "repository": "https://github.com/arnaucode/cr",
-  "main": "server.js",
+  "description": "cryptoAlgorithms",
+  "repository": "https://github.com/arnaucode/cryptoAlgorithms",
+  "main": "test.js",
   "scripts": {
     "prestart": "npm install",
-    "start": "node server.js"
+    "start": "node test.js"
   },
   "dependencies": {
     "bignum": "^0.12.5"

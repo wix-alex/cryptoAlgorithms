@@ -6,21 +6,46 @@ import (
 	"github.com/fatih/color"
 )
 
-func main() {
-	pubK, privK := generateKeyPair()
-	color.Blue("Public Key:")
-	fmt.Println(pubK)
-	color.Green("Private Key:")
-	fmt.Println(privK)
+const maxPrime = 500
+const minPrime = 70
 
-	m := "hola provant això"
+func main() {
+	//RSA
+	color.Yellow("RSA test")
+	var rsa RSA
+	rsa = rsa.generateKeyPair()
+	color.Blue("Public Key:")
+	fmt.Println(rsa.PubK)
+	color.Green("Private Key:")
+	fmt.Println(rsa.PrivK)
+
+	m := "Hi, trying RSA encryption"
 	fmt.Println("m (original message): " + m)
 
-	c := encryptM(m, pubK)
+	c := rsa.encryptM(m, rsa.PubK)
 	color.Yellow("c (message encrypted):")
 	fmt.Println(c)
 
-	m2 := decryptC(c, privK)
+	m2 := rsa.decryptC(c, rsa.PrivK)
+	color.Green("m (message decrypted):")
+	fmt.Println(m2)
+
+	fmt.Println("-----")
+	//Paillier
+	color.Yellow("Paillier test")
+
+	var paillier Paillier
+	paillier = paillier.generateKeyPair()
+	fmt.Println(paillier)
+
+	m = "Hi, here trying Paillier encryption"
+	fmt.Println("m (original message): " + m)
+
+	c = paillier.encryptM(m, paillier.PubK)
+	color.Yellow("c (message encrypted):")
+	fmt.Println(c)
+
+	m2 = paillier.decryptC(c, paillier.PubK, paillier.PrivK)
 	color.Green("m (message decrypted):")
 	fmt.Println(m2)
 }

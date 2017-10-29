@@ -1,6 +1,10 @@
 # cryptoAlgorithms
 
-## RSA
+Algorithms implemented:
+- RSA
+- Paillier
+
+
 Implemented in
 - Nodejs
     - With small prime numbers getting good time result

@@ -1,9 +1,11 @@
 package main
 
-import (
-	"math/rand"
-)
+import "math/rand"
 
+func randInt(min int, max int) int {
+	r := rand.Intn(max-min) + min
+	return r
+}
 func randPrime(min int, max int) int {
 	primes := sieveOfEratosthenes(max)
 
@@ -28,7 +30,6 @@ func sieveOfEratosthenes(N int) (primes []int) {
 	return
 }
 
-/*
 func gcd(a, b int) int {
 	var bgcd func(a, b, res int) int
 
@@ -51,4 +52,3 @@ func gcd(a, b int) int {
 
 	return bgcd(a, b, 1)
 }
-*/
