@@ -19,16 +19,16 @@ func main() {
 	color.Green("Private Key:")
 	fmt.Println(rsa.PrivK)
 
-	m := "Hi, trying RSA encryption"
-	fmt.Println("m (original message): " + m)
+	m1 := "Hi, trying RSA encryption"
+	fmt.Println("m (original message): " + m1)
 
-	c := rsa.encryptM(m, rsa.PubK)
+	c := rsa.encrypt(m1, rsa.PubK)
 	color.Yellow("c (message encrypted):")
 	fmt.Println(c)
 
-	m2 := rsa.decryptC(c, rsa.PrivK)
+	m1decrypted := rsa.decrypt(c, rsa.PrivK)
 	color.Green("m (message decrypted):")
-	fmt.Println(m2)
+	fmt.Println(m1decrypted)
 
 	fmt.Println("-----")
 	//Paillier
@@ -38,14 +38,14 @@ func main() {
 	paillier = paillier.generateKeyPair()
 	fmt.Println(paillier)
 
-	m = "Hi, here trying Paillier encryption"
-	fmt.Println("m (original message): " + m)
+	m2 := "Hi, here trying Paillier encryption"
+	fmt.Println("m (original message): " + m2)
 
-	c = paillier.encryptM(m, paillier.PubK)
+	c = paillier.encrypt(m2, paillier.PubK)
 	color.Yellow("c (message encrypted):")
 	fmt.Println(c)
 
-	m2 = paillier.decryptC(c, paillier.PubK, paillier.PrivK)
+	m2decrypted := paillier.decrypt(c, paillier.PubK, paillier.PrivK)
 	color.Green("m (message decrypted):")
-	fmt.Println(m2)
+	fmt.Println(m2decrypted)
 }

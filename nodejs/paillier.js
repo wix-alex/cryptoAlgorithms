@@ -61,26 +61,26 @@ function generatePaillierKeyPair() {
 
 
 
-function encryptText(m, pubK) {
+function encrypt(m, pubK) {
     chars = m.split('');
     var r = [];
     for (var i = 0; i < chars.length; i++) {
         numb = getNbyL(chars[i]);
-        r.push(encrypt(numb, pubK));
+        r.push(encryptNum(numb, pubK));
     }
     return r;
 }
 
-function decryptNumbers(c, pubK, privK) {
+function decrypt(c, pubK, privK) {
     var r = "";
     for (var i = 0; i < c.length; i++) {
-        numDecrypted = decrypt(c[i], pubK, privK);
+        numDecrypted = decryptNum(c[i], pubK, privK);
         r = r + getLbyN(numDecrypted);
     }
     return r;
 }
 
-function encrypt(m, pubK) {
+function encryptNum(m, pubK) {
     m = bignum(m);
     gM = pubK.g.pow(m);
     r = bignum(rand(0, pubK.n.toNumber()));
@@ -91,7 +91,7 @@ function encrypt(m, pubK) {
     return c.toNumber();
 }
 
-function decrypt(c, pubK, privK) {
+function decryptNum(c, pubK, privK) {
     c = bignum(c);
     cLambda = c.pow(privK.lambda);
     n2 = pubK.n.pow(2);
@@ -154,6 +154,6 @@ function random(bitLength) {
 
 module.exports = {
     generateKeys : generatePaillierKeyPair,
-    encrypt: encryptText,
-    decrypt: decryptNumbers
+    encrypt: encrypt,
+    decrypt: decrypt
 };

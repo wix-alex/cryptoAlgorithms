@@ -79,26 +79,26 @@ func (paillier Paillier) L(u *big.Int, n *big.Int) *big.Int {
 	L := new(big.Int).Div(u1, n)
 	return L
 }
-func (paillier Paillier) encryptM(m string, pubK PaillierPublicKey) []int {
+func (paillier Paillier) encrypt(m string, pubK PaillierPublicKey) []int {
 	var c []int
 	mBytes := []byte(m)
 	fmt.Print("mBytes: ")
 	fmt.Println(mBytes)
 	for _, byte := range mBytes {
-		c = append(c, paillier.encrypt(int(byte), pubK))
+		c = append(c, paillier.encryptInt(int(byte), pubK))
 	}
 	return c
 }
-func (paillier Paillier) decryptC(c []int, pubK PaillierPublicKey, privK PaillierPrivateKey) string {
+func (paillier Paillier) decrypt(c []int, pubK PaillierPublicKey, privK PaillierPrivateKey) string {
 	var m string
 	var mBytes []byte
 	for _, indC := range c {
-		mBytes = append(mBytes, byte(paillier.decrypt(indC, pubK, privK)))
+		mBytes = append(mBytes, byte(paillier.decryptInt(indC, pubK, privK)))
 	}
 	m = string(mBytes)
 	return m
 }
-func (paillier Paillier) encrypt(char int, pubK PaillierPublicKey) int {
+func (paillier Paillier) encryptInt(char int, pubK PaillierPublicKey) int {
 	m := big.NewInt(int64(char))
 	gM := new(big.Int).Exp(pubK.G, m, nil)
 	r := big.NewInt(int64(randInt(0, int(pubK.N.Int64()))))
@@ -108,7 +108,7 @@ func (paillier Paillier) encrypt(char int, pubK PaillierPublicKey) int {
 	c := new(big.Int).Mod(gMrN, n2)
 	return int(c.Int64())
 }
-func (paillier Paillier) decrypt(val int, pubK PaillierPublicKey, privK PaillierPrivateKey) int {
+func (paillier Paillier) decryptInt(val int, pubK PaillierPublicKey, privK PaillierPrivateKey) int {
 	c := big.NewInt(int64(val))
 	cLambda := new(big.Int).Exp(c, privK.Lambda, nil)
 	n2 := new(big.Int).Mul(pubK.N, pubK.N)

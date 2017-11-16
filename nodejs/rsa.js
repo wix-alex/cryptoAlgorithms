@@ -40,29 +40,30 @@ function generateRSAKeyPair() {
     return({"pubK": pubK, "privK": privK});
 }
 
-function encryptText(m, pubK) {
+function encrypt(m, pubK) {
     chars = m.split('');
     var r = [];
     for (var i=0; i<chars.length; i++) {
         numb = getNbyL(chars[i]);
-        r.push(encrypt(numb, pubK));
+        r.push(encryptNum(numb, pubK));
     }
+    var r = encryptNum(numb, pubK)
     return r;
 }
-function decryptNumbers(c, privK) {
+function decrypt(c, privK) {
     var r="";
     for (var i=0; i<c.length; i++) {
-        numDecrypted = decrypt(c[i], privK);
+        numDecrypted = decryptNum(c[i], privK);
         r = r + getLbyN(numDecrypted);
     }
     return r;
 }
-function encrypt(m, pubK) {
+function encryptNum(m, pubK) {
     var Me = bignum(m).pow(pubK.e);
     var c = bignum(Me).mod(pubK.n);
     return c;
 }
-function decrypt(c, privK) {
+function decryptNum(c, privK) {
     var Cd = bignum(c).pow(privK.d);
     var m = bignum(Cd).mod(privK.n);
     return m;
@@ -109,6 +110,6 @@ function modinv(a, m) {
 
 module.exports = {
     generateKeys : generateRSAKeyPair,
-    encrypt: encryptText,
-    decrypt: decryptNumbers
+    encrypt: encrypt,
+    decrypt: decrypt
 };

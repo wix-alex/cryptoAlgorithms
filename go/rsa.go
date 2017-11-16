@@ -48,30 +48,30 @@ func (rsa RSA) generateKeyPair() RSA {
 	rsa.PrivK = privK
 	return rsa
 }
-func (rsa RSA) encryptM(m string, pubK RSAPublicKey) []int {
+func (rsa RSA) encrypt(m string, pubK RSAPublicKey) []int {
 	var c []int
 	mBytes := []byte(m)
 	for _, byte := range mBytes {
-		c = append(c, rsa.encrypt(int(byte), pubK))
+		c = append(c, rsa.encryptInt(int(byte), pubK))
 	}
 	return c
 }
-func (rsa RSA) decryptC(c []int, privK RSAPrivateKey) string {
+func (rsa RSA) decrypt(c []int, privK RSAPrivateKey) string {
 	var m string
 	var mBytes []byte
 	for _, indC := range c {
-		mBytes = append(mBytes, byte(rsa.decrypt(indC, privK)))
+		mBytes = append(mBytes, byte(rsa.decryptInt(indC, privK)))
 	}
 	m = string(mBytes)
 	return m
 }
-func (rsa RSA) encrypt(char int, pubK RSAPublicKey) int {
+func (rsa RSA) encryptInt(char int, pubK RSAPublicKey) int {
 	charBig := big.NewInt(int64(char))
 	Me := charBig.Exp(charBig, pubK.E, nil)
 	c := Me.Mod(Me, pubK.N)
 	return int(c.Int64())
 }
-func (rsa RSA) decrypt(val int, privK RSAPrivateKey) int {
+func (rsa RSA) decryptInt(val int, privK RSAPrivateKey) int {
 	valBig := big.NewInt(int64(val))
 	Cd := valBig.Exp(valBig, privK.D, nil)
 	m := Cd.Mod(Cd, privK.N)
