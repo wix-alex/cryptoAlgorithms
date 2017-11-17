@@ -48,4 +48,12 @@ func main() {
 	m2decrypted := paillier.decrypt(c, paillier.PubK, paillier.PrivK)
 	color.Green("m (message decrypted):")
 	fmt.Println(m2decrypted)
+
+	color.Yellow("Secret Share test")
+	var secretShare SecretShare
+	result, err := secretShare.create(2, 5, 11, 17, "hola")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(result)
 }
