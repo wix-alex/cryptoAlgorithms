@@ -11,49 +11,58 @@ const minPrime = 70
 
 func main() {
 	//RSA
-	color.Yellow("RSA test")
-	var rsa RSA
-	rsa = rsa.generateKeyPair()
-	color.Blue("Public Key:")
-	fmt.Println(rsa.PubK)
-	color.Green("Private Key:")
-	fmt.Println(rsa.PrivK)
+	/*
+		color.Yellow("RSA test")
+		var rsa RSA
+		rsa = rsa.generateKeyPair()
+		color.Blue("Public Key:")
+		fmt.Println(rsa.PubK)
+		color.Green("Private Key:")
+		fmt.Println(rsa.PrivK)
 
-	m1 := "Hi, trying RSA encryption"
-	fmt.Println("m (original message): " + m1)
+		m1 := "Hi, trying RSA encryption"
+		fmt.Println("m (original message): " + m1)
 
-	c := rsa.encrypt(m1, rsa.PubK)
-	color.Yellow("c (message encrypted):")
-	fmt.Println(c)
+		c := rsa.encrypt(m1, rsa.PubK)
+		color.Yellow("c (message encrypted):")
+		fmt.Println(c)
 
-	m1decrypted := rsa.decrypt(c, rsa.PrivK)
-	color.Green("m (message decrypted):")
-	fmt.Println(m1decrypted)
+		m1decrypted := rsa.decrypt(c, rsa.PrivK)
+		color.Green("m (message decrypted):")
+		fmt.Println(m1decrypted)
 
-	fmt.Println("-----")
-	//Paillier
-	color.Yellow("Paillier test")
+		fmt.Println("-----")
+		//Paillier
+		color.Yellow("Paillier test")
 
-	var paillier Paillier
-	paillier = paillier.generateKeyPair()
-	fmt.Println(paillier)
+		var paillier Paillier
+		paillier = paillier.generateKeyPair()
+		fmt.Println(paillier)
 
-	m2 := "Hi, here trying Paillier encryption"
-	fmt.Println("m (original message): " + m2)
+		m2 := "Hi, here trying Paillier encryption"
+		fmt.Println("m (original message): " + m2)
 
-	c = paillier.encrypt(m2, paillier.PubK)
-	color.Yellow("c (message encrypted):")
-	fmt.Println(c)
+		c = paillier.encrypt(m2, paillier.PubK)
+		color.Yellow("c (message encrypted):")
+		fmt.Println(c)
 
-	m2decrypted := paillier.decrypt(c, paillier.PubK, paillier.PrivK)
-	color.Green("m (message decrypted):")
-	fmt.Println(m2decrypted)
-
+		m2decrypted := paillier.decrypt(c, paillier.PubK, paillier.PrivK)
+		color.Green("m (message decrypted):")
+		fmt.Println(m2decrypted)
+	*/
 	color.Yellow("Secret Share test")
 	var secretShare SecretShare
-	result, err := secretShare.create(2, 5, 11, 17, "hola")
+	shares, err := secretShare.create(2, 5, 17, "hola")
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(result)
+	fmt.Println(shares)
+
+	//generate sharesToUse
+	var sharesToUse [][]string
+	sharesToUse = append(sharesToUse, shares[0])
+	sharesToUse = append(sharesToUse, shares[1])
+	sharesToUse = append(sharesToUse, shares[3])
+	r := secretShare.LagrangeInterpolation(sharesToUse, 17)
+	fmt.Println(r)
 }
