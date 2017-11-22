@@ -35,12 +35,23 @@ func main() {
 
 	//RSA blind signature
 	color.Magenta("RSA blind signature")
+	r := 101
+	msg := "hola"
+	//convert msg to []int
+	var m []int
+	mBytes := []byte(msg)
+	for _, byte := range mBytes {
+		m = append(m, int(byte))
+	}
 	//blind
-	sigma := rsa.blind(c, rsa.PubK, rsa.PrivK) //here the privK will be the CA privK, not the m emmiter's one
+	mBlinded := rsa.sign(m, rsa.PubK, rsa.PrivK) //here the pubK and privK is the user's one
+	fmt.Print("Message blinded': ")
+	fmt.Println(mBlinded)
+	//sign
+	sigma := rsa.sign(mBlinded, rsa.PubK, rsa.PrivK) //here the privK will be the CA privK, not the m emmiter's one. The pubK is the user's one
 	fmt.Print("Sigma': ")
 	fmt.Println(sigma)
 	//unblind
-	r := 101
 	signature := rsa.unblind(sigma, r, rsa.PubK)
 	fmt.Print("Sigma (signature): ")
 	fmt.Println(signature)
@@ -117,21 +128,20 @@ func main() {
 
 	color.Blue("-----\n\n")
 
-	/*
-		color.Magenta("Secret Share test")
-		var secretShare SecretShare
-		shares, err := secretShare.create(2, 5, 17, "hola")
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(shares)
+	color.Magenta("Secret Share test")
+	var secretShare SecretShare
+	shares, err := secretShare.create(2, 5, 17, "hola")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(shares)
 
-		//generate sharesToUse
-		var sharesToUse [][]string
-		sharesToUse = append(sharesToUse, shares[0])
-		sharesToUse = append(sharesToUse, shares[1])
-		sharesToUse = append(sharesToUse, shares[3])
-		r := secretShare.LagrangeInterpolation(sharesToUse, 17)
-		fmt.Println(r)
-	*/
+	//generate sharesToUse
+	var sharesToUse [][]string
+	sharesToUse = append(sharesToUse, shares[0])
+	sharesToUse = append(sharesToUse, shares[1])
+	sharesToUse = append(sharesToUse, shares[3])
+	secr := secretShare.LagrangeInterpolation(sharesToUse, 17)
+	fmt.Println(secr)
+
 }

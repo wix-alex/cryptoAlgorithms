@@ -78,7 +78,20 @@ func (rsa RSA) decryptInt(val int, privK RSAPrivateKey) int {
 	return int(m.Int64())
 }
 
-func (rsa RSA) blind(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
+func (rsa RSA) blind(m []int, r int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
+	var mBlinded []int
+	rBigInt := big.NewInt(int64(r))
+	for i := 0; i < len(m); i++ {
+		mBigInt := big.NewInt(int64(m[i]))
+		rE := new(big.Int).Exp(rBigInt, pubK.E, nil)
+		mrE := new(big.Int).Mul(mBigInt, rE)
+		mrEmodN := new(big.Int).Mod(mrE, privK.N)
+		mBlinded = append(mBlinded, int(mrEmodN.Int64()))
+	}
+	return mBlinded
+}
+
+func (rsa RSA) sign(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
 	var r []int
 	for i := 0; i < len(m); i++ {
 		mBigInt := big.NewInt(int64(m[i]))
@@ -87,7 +100,6 @@ func (rsa RSA) blind(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
 	}
 	return r
 }
-
 func (rsa RSA) unblind(sigma []int, r int, pubK RSAPublicKey) []int {
 	var signature []int
 	rBigInt := big.NewInt(int64(r))
