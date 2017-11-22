@@ -77,3 +77,36 @@ func (rsa RSA) decryptInt(val int, privK RSAPrivateKey) int {
 	m := Cd.Mod(Cd, privK.N)
 	return int(m.Int64())
 }
+
+func (rsa RSA) blind(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
+	var r []int
+	for i := 0; i < len(m); i++ {
+		mBigInt := big.NewInt(int64(m[i]))
+		sigma := new(big.Int).Exp(mBigInt, privK.D, pubK.N)
+		r = append(r, int(sigma.Int64()))
+	}
+	return r
+}
+
+func (rsa RSA) unblind(sigma []int, r int, pubK RSAPublicKey) []int {
+	var signature []int
+	rBigInt := big.NewInt(int64(r))
+	for i := 0; i < len(sigma); i++ {
+		sigmaBigInt := big.NewInt(int64(sigma[i]))
+		r1 := new(big.Int).Exp(rBigInt, big.NewInt(int64(-1)), nil)
+		sigmar := new(big.Int).Mul(sigmaBigInt, r1)
+		sig := new(big.Int).Mod(sigmar, pubK.N)
+		signature = append(signature, int(sig.Int64()))
+	}
+	return signature
+}
+
+func (rsa RSA) homomorphicMultiplication(c1 int, c2 int, pubK RSAPublicKey) int {
+	c1BigInt := big.NewInt(int64(c1))
+	c2BigInt := big.NewInt(int64(c2))
+	c1c2 := new(big.Int).Mul(c1BigInt, c2BigInt)
+	n2 := new(big.Int).Mul(pubK.N, pubK.N)
+	d := new(big.Int).Mod(c1c2, n2)
+	r := int(d.Int64())
+	return r
+}

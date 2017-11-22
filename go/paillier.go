@@ -118,3 +118,26 @@ func (paillier Paillier) decryptInt(val int, pubK PaillierPublicKey, privK Paill
 	m := new(big.Int).Mod(LMu, pubK.N)
 	return int(m.Int64())
 }
+
+/*func (paillier Paillier) homomorphicAddition(c1 []int, c2 []int, pubK PaillierPublicKey) []int {
+	var r []int
+	for i := 0; i < len(c1); i++ {
+		c1BigInt := big.NewInt(int64(c1[i]))
+		c2BigInt := big.NewInt(int64(c2[i]))
+		c1c2 := new(big.Int).Mul(c1BigInt, c2BigInt)
+		n2 := new(big.Int).Mul(pubK.N, pubK.N)
+		d := new(big.Int).Mod(c1c2, n2)
+		r = append(r, int(d.Int64()))
+	}
+	return r
+}*/
+
+func (paillier Paillier) homomorphicAddition(c1 int, c2 int, pubK PaillierPublicKey) int {
+	c1BigInt := big.NewInt(int64(c1))
+	c2BigInt := big.NewInt(int64(c2))
+	c1c2 := new(big.Int).Mul(c1BigInt, c2BigInt)
+	n2 := new(big.Int).Mul(pubK.N, pubK.N)
+	d := new(big.Int).Mod(c1c2, n2)
+	r := int(d.Int64())
+	return r
+}
