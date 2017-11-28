@@ -65,6 +65,18 @@ func (rsa RSA) decrypt(c []int, privK RSAPrivateKey) string {
 	m = string(mBytes)
 	return m
 }
+
+func (rsa RSA) encryptBigInt(bigint *big.Int, pubK RSAPublicKey) *big.Int {
+	Me := new(big.Int).Exp(bigint, pubK.E, nil)
+	c := new(big.Int).Mod(Me, pubK.N)
+	return c
+}
+func (rsa RSA) decryptBigInt(bigint *big.Int, privK RSAPrivateKey) *big.Int {
+	Cd := new(big.Int).Exp(bigint, privK.D, nil)
+	m := new(big.Int).Mod(Cd, privK.N)
+	return m
+}
+
 func (rsa RSA) encryptInt(char int, pubK RSAPublicKey) int {
 	charBig := big.NewInt(int64(char))
 	Me := charBig.Exp(charBig, pubK.E, nil)

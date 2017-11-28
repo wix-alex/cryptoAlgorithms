@@ -82,8 +82,6 @@ func (paillier Paillier) L(u *big.Int, n *big.Int) *big.Int {
 func (paillier Paillier) encrypt(m string, pubK PaillierPublicKey) []int {
 	var c []int
 	mBytes := []byte(m)
-	fmt.Print("mBytes: ")
-	fmt.Println(mBytes)
 	for _, byte := range mBytes {
 		c = append(c, paillier.encryptInt(int(byte), pubK))
 	}

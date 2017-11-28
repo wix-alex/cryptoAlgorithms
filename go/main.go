@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/fatih/color"
 )
 
-const maxPrime = 500
-const minPrime = 70
+const maxPrime = 5000
+const minPrime = 1000
 
 func main() {
 	//RSA
@@ -20,14 +21,27 @@ func main() {
 	color.Green("Private Key:")
 	fmt.Println(rsa.PrivK)
 
-	m1 := "Hi, trying RSA encryption"
+	//m1 := "Hi, trying RSA encryption"
+	m1 := "Hi"
 	fmt.Println("m (original message): " + m1)
+	m1Bytes := []byte(m1)
+	fmt.Println(m1Bytes)
+	m1BigInt := new(big.Int).SetBytes(m1Bytes)
+	fmt.Println(m1BigInt)
+	c := rsa.encryptBigInt(m1BigInt, rsa.PubK)
+	fmt.Print("c: ")
+	fmt.Println(c)
 
-	c := rsa.encrypt(m1, rsa.PubK)
+	m1decryptedBigInt := rsa.decryptBigInt(c, rsa.PrivK)
+	m1decryptedBytes := m1decryptedBigInt.Bytes()
+	fmt.Println(m1decryptedBytes)
+	m1decrypted := string(m1decryptedBytes)
+
+	/*c := rsa.encrypt(m1, rsa.PubK)
 	color.Yellow("c (message encrypted):")
 	fmt.Println(c)
 
-	m1decrypted := rsa.decrypt(c, rsa.PrivK)
+	m1decrypted := rsa.decrypt(c, rsa.PrivK)*/
 	color.Green("m (message decrypted):")
 	fmt.Println(m1decrypted)
 
@@ -93,11 +107,11 @@ func main() {
 	m2 := "Hi, here trying Paillier encryption"
 	fmt.Println("m (original message): " + m2)
 
-	c = paillier.encrypt(m2, paillier.PubK)
+	c2 := paillier.encrypt(m2, paillier.PubK)
 	color.Yellow("c (message encrypted):")
 	fmt.Println(c)
 
-	m2decrypted := paillier.decrypt(c, paillier.PubK, paillier.PrivK)
+	m2decrypted := paillier.decrypt(c2, paillier.PubK, paillier.PrivK)
 	color.Green("m (message decrypted):")
 	fmt.Println(m2decrypted)
 
