@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-	"math/big"
 
 	"github.com/fatih/color"
 )
 
-const maxPrime = 5000
-const minPrime = 1000
+const maxPrime = 500
+const minPrime = 300
 
 func main() {
 	//RSA
@@ -21,27 +20,30 @@ func main() {
 	color.Green("Private Key:")
 	fmt.Println(rsa.PrivK)
 
-	//m1 := "Hi, trying RSA encryption"
-	m1 := "Hi"
-	fmt.Println("m (original message): " + m1)
-	m1Bytes := []byte(m1)
-	fmt.Println(m1Bytes)
-	m1BigInt := new(big.Int).SetBytes(m1Bytes)
-	fmt.Println(m1BigInt)
-	c := rsa.encryptBigInt(m1BigInt, rsa.PubK)
-	fmt.Print("c: ")
-	fmt.Println(c)
+	/*
+		//encrypting converting the whole string to a big.Int
+			m1 := "Hi"
+			fmt.Println("m (original message): " + m1)
+			m1Bytes := []byte(m1)
+			fmt.Println(m1Bytes)
+			m1BigInt := new(big.Int).SetBytes(m1Bytes)
+			fmt.Println(m1BigInt)
+			c := rsa.encryptBigInt(m1BigInt, rsa.PubK)
+			fmt.Print("c: ")
+			fmt.Println(c)
 
-	m1decryptedBigInt := rsa.decryptBigInt(c, rsa.PrivK)
-	m1decryptedBytes := m1decryptedBigInt.Bytes()
-	fmt.Println(m1decryptedBytes)
-	m1decrypted := string(m1decryptedBytes)
+			m1decryptedBigInt := rsa.decryptBigInt(c, rsa.PrivK)
+			m1decryptedBytes := m1decryptedBigInt.Bytes()
+			fmt.Println(m1decryptedBytes)
+			m1decrypted := string(m1decryptedBytes)
+	*/
 
-	/*c := rsa.encrypt(m1, rsa.PubK)
+	m1 := "Hi, trying RSA encryption"
+	c := rsa.encrypt(m1, rsa.PubK)
 	color.Yellow("c (message encrypted):")
 	fmt.Println(c)
 
-	m1decrypted := rsa.decrypt(c, rsa.PrivK)*/
+	m1decrypted := rsa.decrypt(c, rsa.PrivK)
 	color.Green("m (message decrypted):")
 	fmt.Println(m1decrypted)
 
@@ -51,24 +53,30 @@ func main() {
 	color.Magenta("RSA blind signature")
 	r := 101
 	msg := "hola"
+	fmt.Println("msg: " + msg)
 	//convert msg to []int
 	var m []int
 	mBytes := []byte(msg)
 	for _, byte := range mBytes {
 		m = append(m, int(byte))
 	}
+	fmt.Print("msg bytes: ")
+	fmt.Println(mBytes)
 	//blind
-	mBlinded := rsa.sign(m, rsa.PubK, rsa.PrivK) //here the pubK and privK is the user's one
-	fmt.Print("Message blinded': ")
+	mBlinded := rsa.blind(m, r, rsa.PubK, rsa.PrivK) //here the pubK and privK is the user's one
+	fmt.Print("Message blinded: ")
 	fmt.Println(mBlinded)
 	//sign
-	sigma := rsa.sign(mBlinded, rsa.PubK, rsa.PrivK) //here the privK will be the CA privK, not the m emmiter's one. The pubK is the user's one
-	fmt.Print("Sigma': ")
-	fmt.Println(sigma)
+	blindsigned := rsa.blindSign(mBlinded, rsa.PubK, rsa.PrivK) //here the privK will be the CA privK, not the m emmiter's one. The pubK is the user's one
+	color.Green("blindsigned:")
+	fmt.Println(blindsigned)
 	//unblind
-	signature := rsa.unblind(sigma, r, rsa.PubK)
-	fmt.Print("Sigma (signature): ")
-	fmt.Println(signature)
+	mSigned := rsa.unblind(blindsigned, r, rsa.PubK)
+	color.Green("msg signed: ")
+	fmt.Println(mSigned)
+	v := rsa.verify(m, mSigned, rsa.PubK)
+	color.Green("verification of the msg sign:")
+	fmt.Println(v)
 
 	color.Blue("-----\n\n")
 

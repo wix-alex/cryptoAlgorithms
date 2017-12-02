@@ -103,7 +103,7 @@ func (rsa RSA) blind(m []int, r int, pubK RSAPublicKey, privK RSAPrivateKey) []i
 	return mBlinded
 }
 
-func (rsa RSA) sign(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
+func (rsa RSA) blindSign(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
 	var r []int
 	for i := 0; i < len(m); i++ {
 		mBigInt := big.NewInt(int64(m[i]))
@@ -112,17 +112,41 @@ func (rsa RSA) sign(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
 	}
 	return r
 }
-func (rsa RSA) unblind(sigma []int, r int, pubK RSAPublicKey) []int {
-	var signature []int
+func (rsa RSA) unblind(blindsigned []int, r int, pubK RSAPublicKey) []int {
+	var mSigned []int
 	rBigInt := big.NewInt(int64(r))
-	for i := 0; i < len(sigma); i++ {
-		sigmaBigInt := big.NewInt(int64(sigma[i]))
-		r1 := new(big.Int).Exp(rBigInt, big.NewInt(int64(-1)), nil)
-		sigmar := new(big.Int).Mul(sigmaBigInt, r1)
-		sig := new(big.Int).Mod(sigmar, pubK.N)
-		signature = append(signature, int(sig.Int64()))
+	for i := 0; i < len(blindsigned); i++ {
+		bsBigInt := big.NewInt(int64(blindsigned[i]))
+		//r1 := new(big.Int).Exp(rBigInt, big.NewInt(int64(-1)), nil)
+		r1 := new(big.Int).ModInverse(rBigInt, pubK.N)
+		bsr := new(big.Int).Mul(bsBigInt, r1)
+		sig := new(big.Int).Mod(bsr, pubK.N)
+		mSigned = append(mSigned, int(sig.Int64()))
 	}
-	return signature
+	return mSigned
+}
+func (rsa RSA) verify(msg []int, mSigned []int, pubK RSAPublicKey) bool {
+	if len(msg) != len(mSigned) {
+		return false
+	}
+	var mSignedDecrypted []int
+	for _, ms := range mSigned {
+		msBig := big.NewInt(int64(ms))
+		//decrypt the mSigned with pubK
+		Cd := new(big.Int).Exp(msBig, pubK.E, nil)
+		m := new(big.Int).Mod(Cd, pubK.N)
+		mSignedDecrypted = append(mSignedDecrypted, int(m.Int64()))
+	}
+	fmt.Print("msg signed decrypted: ")
+	fmt.Println(mSignedDecrypted)
+	r := true
+	//check if the mSignedDecrypted == msg
+	for i := 0; i < len(msg); i++ {
+		if msg[i] != mSignedDecrypted[i] {
+			r = false
+		}
+	}
+	return r
 }
 
 func (rsa RSA) homomorphicMultiplication(c1 int, c2 int, pubK RSAPublicKey) int {
