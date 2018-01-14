@@ -48,7 +48,7 @@ func main() {
 	color.Green("m (message decrypted):")
 	fmt.Println(m1decrypted)
 
-	color.Blue("-----\n\n")
+	color.Blue("\n-----\n\n\n")
 
 	//RSA blind signature
 	color.Magenta("RSA blind signature")
@@ -73,7 +73,7 @@ func main() {
 	fmt.Print("Sigma (signature): ")
 	fmt.Println(signature)
 
-	color.Blue("-----\n\n")
+	color.Blue("\n-----\n\n\n")
 
 	//RSA Homomorphic addition
 	color.Magenta("RSA Homomorphic multiplication")
@@ -98,7 +98,7 @@ func main() {
 	color.Green("Homomorphic multiplication result decrypted):")
 	fmt.Println(m5decrypted)
 
-	color.Blue("-----\n\n")
+	color.Blue("\n-----\n\n\n")
 
 	//Paillier
 	color.Magenta("Paillier test")
@@ -118,7 +118,7 @@ func main() {
 	color.Green("m (message decrypted):")
 	fmt.Println(m2decrypted)
 
-	color.Blue("-----\n\n")
+	color.Blue("\n-----\n\n\n")
 
 	//Paillier Homomorphic addition
 	color.Magenta("Paillier Homomorphic addition")
@@ -143,11 +143,16 @@ func main() {
 	color.Green("Homomorphic addition result decrypted):")
 	fmt.Println(m8decrypted)
 
-	color.Blue("-----\n\n")
+	color.Blue("\n-----\n\n\n")
 
 	color.Magenta("Secret Share test")
 	//var secretShare ownSecretShare.SecretShare
-	shares, err := ownSecretShare.Create(2, 5, 17, "hola")
+
+	//ownSecretShare.Create(needed shares, num of shares, p_mod, text)
+	k := 1234
+	fmt.Print("original secret: ")
+	fmt.Println(k)
+	shares, err := ownSecretShare.Create(3, 6, 1613, k)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -155,10 +160,11 @@ func main() {
 
 	//generate sharesToUse
 	var sharesToUse [][]string
-	sharesToUse = append(sharesToUse, shares[0])
+	sharesToUse = append(sharesToUse, shares[2])
 	sharesToUse = append(sharesToUse, shares[1])
-	sharesToUse = append(sharesToUse, shares[3])
-	secr := ownSecretShare.LagrangeInterpolation(sharesToUse, 17)
+	sharesToUse = append(sharesToUse, shares[0])
+	secr := ownSecretShare.LagrangeInterpolation(sharesToUse, 1613)
+	fmt.Print("secret result: ")
 	fmt.Println(secr)
 
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
-	"strings"
 
 	ownPrime "../ownPrime"
 )
@@ -15,36 +14,37 @@ type SecretShare struct {
 }
 
 /*
-t: polynomial will be t-1 degree
+t: min needed shares, polynomial will be t-1 degree
 n: number of shares
 k: sand alone value of the polynomial
 p: polynomial will be evaluated at mod p
 */
-func Create(t int, n int, p int, s string) ([][]string, error) {
+func Create(t int, n int, p int, k int) ([][]string, error) {
 	//next line is for developing test
-	k := 11
+	//k = 1234
 
 	if k > p {
 		return nil, errors.New("Error: need k<p")
 	}
 
-	secret := CharactersArrayToBigIntArray(strings.Split(s, ""))
+	//secret := CharactersArrayToBigIntArray(strings.Split(s, ""))
 
 	//generate the basePolynomial
 	var basePolynomial []*big.Int
 	basePolynomial = append(basePolynomial, big.NewInt(int64(k)))
-	for i := 0; i < len(secret)-1; i++ {
+	//for i := 0; i < len(secret)-1; i++ {
+	for i := 0; i < t-1; i++ {
 		randBigInt := big.NewInt(int64(ownPrime.RandPrime(ownPrime.MinPrime, ownPrime.MaxPrime)))
 
 		basePolynomial = append(basePolynomial, randBigInt)
 	}
 
 	//next 6 lines are to test
-	basePolynomial = []*big.Int{
+	/*basePolynomial = []*big.Int{
 		big.NewInt(int64(k)),
-		big.NewInt(int64(8)),
-		big.NewInt(int64(7)),
-	}
+		big.NewInt(int64(166)),
+		big.NewInt(int64(94)),
+	}*/
 
 	//calculate shares, based on the basePolynomial
 	var shares []*big.Int
@@ -167,8 +167,15 @@ func LagrangeInterpolation(sharesGiven [][]string, p int) *big.Int {
 	fmt.Print(resultD)
 	fmt.Print(" mod ")
 	fmt.Println(p)
-	modinv := new(big.Int).ModInverse(resultD, big.NewInt(int64(p)))
-	modinvMul := new(big.Int).Mul(resultN, modinv)
+	var modinvMul *big.Int
+	if resultD.Int64() != 0 {
+		modinv := new(big.Int).ModInverse(resultD, big.NewInt(int64(p)))
+		fmt.Println("modinv: ")
+		fmt.Println(modinv)
+		modinvMul = new(big.Int).Mul(resultN, modinv)
+	} else {
+		modinvMul = resultN
+	}
 	r := new(big.Int).Mod(modinvMul, big.NewInt(int64(p)))
 	//resultMod, asdf := new(big.Int).DivMod(resultN, resultD, big.NewInt(int64(p)))
 	fmt.Println(r)
