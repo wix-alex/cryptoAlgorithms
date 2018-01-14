@@ -1,10 +1,12 @@
-package main
+package ownRSA
 
 import (
 	"fmt"
 	"math/big"
 	"math/rand"
 	"time"
+
+	ownPrime "../ownPrime"
 )
 
 type RSAPublicKey struct {
@@ -21,11 +23,11 @@ type RSA struct {
 	PrivK RSAPrivateKey
 }
 
-func (rsa RSA) generateKeyPair() RSA {
+func GenerateKeyPair() (rsa RSA) {
 
 	rand.Seed(time.Now().Unix())
-	p := randPrime(minPrime, maxPrime)
-	q := randPrime(minPrime, maxPrime)
+	p := ownPrime.RandPrime(ownPrime.MinPrime, ownPrime.MaxPrime)
+	q := ownPrime.RandPrime(ownPrime.MinPrime, ownPrime.MaxPrime)
 	fmt.Print("p:")
 	fmt.Println(p)
 	fmt.Print("q:")
@@ -48,49 +50,49 @@ func (rsa RSA) generateKeyPair() RSA {
 	rsa.PrivK = privK
 	return rsa
 }
-func (rsa RSA) encrypt(m string, pubK RSAPublicKey) []int {
+func Encrypt(m string, pubK RSAPublicKey) []int {
 	var c []int
 	mBytes := []byte(m)
 	for _, byte := range mBytes {
-		c = append(c, rsa.encryptInt(int(byte), pubK))
+		c = append(c, EncryptInt(int(byte), pubK))
 	}
 	return c
 }
-func (rsa RSA) decrypt(c []int, privK RSAPrivateKey) string {
+func Decrypt(c []int, privK RSAPrivateKey) string {
 	var m string
 	var mBytes []byte
 	for _, indC := range c {
-		mBytes = append(mBytes, byte(rsa.decryptInt(indC, privK)))
+		mBytes = append(mBytes, byte(DecryptInt(indC, privK)))
 	}
 	m = string(mBytes)
 	return m
 }
 
-func (rsa RSA) encryptBigInt(bigint *big.Int, pubK RSAPublicKey) *big.Int {
+func EncryptBigInt(bigint *big.Int, pubK RSAPublicKey) *big.Int {
 	Me := new(big.Int).Exp(bigint, pubK.E, nil)
 	c := new(big.Int).Mod(Me, pubK.N)
 	return c
 }
-func (rsa RSA) decryptBigInt(bigint *big.Int, privK RSAPrivateKey) *big.Int {
+func DecryptBigInt(bigint *big.Int, privK RSAPrivateKey) *big.Int {
 	Cd := new(big.Int).Exp(bigint, privK.D, nil)
 	m := new(big.Int).Mod(Cd, privK.N)
 	return m
 }
 
-func (rsa RSA) encryptInt(char int, pubK RSAPublicKey) int {
+func EncryptInt(char int, pubK RSAPublicKey) int {
 	charBig := big.NewInt(int64(char))
 	Me := charBig.Exp(charBig, pubK.E, nil)
 	c := Me.Mod(Me, pubK.N)
 	return int(c.Int64())
 }
-func (rsa RSA) decryptInt(val int, privK RSAPrivateKey) int {
+func DecryptInt(val int, privK RSAPrivateKey) int {
 	valBig := big.NewInt(int64(val))
 	Cd := valBig.Exp(valBig, privK.D, nil)
 	m := Cd.Mod(Cd, privK.N)
 	return int(m.Int64())
 }
 
-func (rsa RSA) blind(m []int, r int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
+func Blind(m []int, r int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
 	var mBlinded []int
 	rBigInt := big.NewInt(int64(r))
 	for i := 0; i < len(m); i++ {
@@ -103,7 +105,7 @@ func (rsa RSA) blind(m []int, r int, pubK RSAPublicKey, privK RSAPrivateKey) []i
 	return mBlinded
 }
 
-func (rsa RSA) blindSign(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
+func BlindSign(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
 	var r []int
 	for i := 0; i < len(m); i++ {
 		mBigInt := big.NewInt(int64(m[i]))
@@ -112,7 +114,7 @@ func (rsa RSA) blindSign(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int 
 	}
 	return r
 }
-func (rsa RSA) unblind(blindsigned []int, r int, pubK RSAPublicKey) []int {
+func Unblind(blindsigned []int, r int, pubK RSAPublicKey) []int {
 	var mSigned []int
 	rBigInt := big.NewInt(int64(r))
 	for i := 0; i < len(blindsigned); i++ {
@@ -125,7 +127,7 @@ func (rsa RSA) unblind(blindsigned []int, r int, pubK RSAPublicKey) []int {
 	}
 	return mSigned
 }
-func (rsa RSA) verify(msg []int, mSigned []int, pubK RSAPublicKey) bool {
+func Verify(msg []int, mSigned []int, pubK RSAPublicKey) bool {
 	if len(msg) != len(mSigned) {
 		return false
 	}
@@ -149,7 +151,7 @@ func (rsa RSA) verify(msg []int, mSigned []int, pubK RSAPublicKey) bool {
 	return r
 }
 
-func (rsa RSA) homomorphicMultiplication(c1 int, c2 int, pubK RSAPublicKey) int {
+func HomomorphicMultiplication(c1 int, c2 int, pubK RSAPublicKey) int {
 	c1BigInt := big.NewInt(int64(c1))
 	c2BigInt := big.NewInt(int64(c2))
 	c1c2 := new(big.Int).Mul(c1BigInt, c2BigInt)

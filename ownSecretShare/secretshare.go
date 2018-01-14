@@ -1,4 +1,4 @@
-package main
+package ownSecretShare
 
 import (
 	"errors"
@@ -6,6 +6,8 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
+
+	ownPrime "../ownPrime"
 )
 
 type SecretShare struct {
@@ -18,7 +20,7 @@ n: number of shares
 k: sand alone value of the polynomial
 p: polynomial will be evaluated at mod p
 */
-func (secretShare SecretShare) create(t int, n int, p int, s string) ([][]string, error) {
+func Create(t int, n int, p int, s string) ([][]string, error) {
 	//next line is for developing test
 	k := 11
 
@@ -26,13 +28,13 @@ func (secretShare SecretShare) create(t int, n int, p int, s string) ([][]string
 		return nil, errors.New("Error: need k<p")
 	}
 
-	secret := secretShare.charactersArrayToBigIntArray(strings.Split(s, ""))
+	secret := CharactersArrayToBigIntArray(strings.Split(s, ""))
 
 	//generate the basePolynomial
 	var basePolynomial []*big.Int
 	basePolynomial = append(basePolynomial, big.NewInt(int64(k)))
 	for i := 0; i < len(secret)-1; i++ {
-		randBigInt := big.NewInt(int64(randPrime(minPrime, maxPrime)))
+		randBigInt := big.NewInt(int64(ownPrime.RandPrime(ownPrime.MinPrime, ownPrime.MaxPrime)))
 
 		basePolynomial = append(basePolynomial, randBigInt)
 	}
@@ -64,12 +66,12 @@ func (secretShare SecretShare) create(t int, n int, p int, s string) ([][]string
 		//pResult = big.NewInt(int64(0))
 		shares = append(shares, pResultMod)
 	}
-	sharesString := secretShare.bigIntArrayToCharactersArray(shares)
+	sharesString := BigIntArrayToCharactersArray(shares)
 	//put the share together with his p value
-	result := secretShare.packSharesAndI(sharesString)
+	result := PackSharesAndI(sharesString)
 	return result, nil
 }
-func (secretShare SecretShare) stringArrayToBigIntArray(s []string) []*big.Int {
+func StringArrayToBigIntArray(s []string) []*big.Int {
 	var r []*big.Int
 	//sBytes := []byte(s)
 	for _, sElem := range s {
@@ -82,7 +84,7 @@ func (secretShare SecretShare) stringArrayToBigIntArray(s []string) []*big.Int {
 	}
 	return r
 }
-func (secretShare SecretShare) charactersArrayToBigIntArray(s []string) []*big.Int {
+func CharactersArrayToBigIntArray(s []string) []*big.Int {
 	var r []*big.Int
 	//sBytes := []byte(s)
 	for _, sElem := range s {
@@ -92,14 +94,14 @@ func (secretShare SecretShare) charactersArrayToBigIntArray(s []string) []*big.I
 	}
 	return r
 }
-func (secretShare SecretShare) bigIntArrayToCharactersArray(b []*big.Int) []string {
+func BigIntArrayToCharactersArray(b []*big.Int) []string {
 	var r []string
 	for _, bigint := range b {
 		r = append(r, bigint.String())
 	}
 	return r
 }
-func (secretShare SecretShare) packSharesAndI(sharesString []string) [][]string {
+func PackSharesAndI(sharesString []string) [][]string {
 	var r [][]string
 	for i, share := range sharesString {
 		curr := []string{share, strconv.Itoa(i + 1)}
@@ -107,7 +109,7 @@ func (secretShare SecretShare) packSharesAndI(sharesString []string) [][]string 
 	}
 	return r
 }
-func (secretShare SecretShare) unpackSharesAndI(sharesPacked [][]string) ([]string, []string) {
+func UnpackSharesAndI(sharesPacked [][]string) ([]string, []string) {
 	var shares []string
 	var i []string
 	for _, share := range sharesPacked {
@@ -117,17 +119,17 @@ func (secretShare SecretShare) unpackSharesAndI(sharesPacked [][]string) ([]stri
 	return shares, i
 }
 
-func (secretShare SecretShare) LagrangeInterpolation(sharesGiven [][]string, p int) *big.Int {
+func LagrangeInterpolation(sharesGiven [][]string, p int) *big.Int {
 
 	//result := big.NewInt(int64(0))
 	resultN := big.NewInt(int64(0))
 	resultD := big.NewInt(int64(0))
 
 	//unpack shares
-	shares, sharesI := secretShare.unpackSharesAndI(sharesGiven)
+	shares, sharesI := UnpackSharesAndI(sharesGiven)
 
-	sharesBigInt := secretShare.stringArrayToBigIntArray(shares)
-	sharesIBigInt := secretShare.stringArrayToBigIntArray(sharesI)
+	sharesBigInt := StringArrayToBigIntArray(shares)
+	sharesIBigInt := StringArrayToBigIntArray(sharesI)
 	for i := 0; i < len(sharesBigInt); i++ {
 		lagrangeNumerator := big.NewInt(int64(1))
 		lagrangeDenominator := big.NewInt(int64(1))
@@ -175,7 +177,7 @@ func (secretShare SecretShare) LagrangeInterpolation(sharesGiven [][]string, p i
 
 //l is the others values != i
 //j is the share i
-func (secretShare SecretShare) LagrangeBasis(l *big.Float, j *big.Float) *big.Float {
+func LagrangeBasis(l *big.Float, j *big.Float) *big.Float {
 	l_j := new(big.Float).Sub(l, j)
 	sublambda := new(big.Float).Quo(l, l_j)
 	return sublambda

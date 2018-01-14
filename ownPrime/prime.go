@@ -1,13 +1,16 @@
-package main
+package ownPrime
 
 import "math/rand"
 
-func randInt(min int, max int) int {
+const MaxPrime = 500
+const MinPrime = 100
+
+func RandInt(min int, max int) int {
 	r := rand.Intn(max-min) + min
 	return r
 }
-func randPrime(min int, max int) int {
-	primes := sieveOfEratosthenes(max)
+func RandPrime(min int, max int) int {
+	primes := SieveOfEratosthenes(max)
 
 	randN := rand.Intn(len(primes)-0) + 0
 
@@ -16,7 +19,7 @@ func randPrime(min int, max int) int {
 }
 
 // return list of primes less than N
-func sieveOfEratosthenes(N int) (primes []int) {
+func SieveOfEratosthenes(N int) (primes []int) {
 	b := make([]bool, N)
 	for i := 2; i < N; i++ {
 		if b[i] == true {
@@ -30,7 +33,7 @@ func sieveOfEratosthenes(N int) (primes []int) {
 	return
 }
 
-func gcd(a, b int) int {
+func Gcd(a, b int) int {
 	var bgcd func(a, b, res int) int
 
 	bgcd = func(a, b, res int) int {
