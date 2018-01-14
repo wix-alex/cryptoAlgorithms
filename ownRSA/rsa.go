@@ -1,9 +1,12 @@
 package ownRSA
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"math/rand"
+	"strconv"
+	"strings"
 	"time"
 
 	ownPrime "../ownPrime"
@@ -13,6 +16,10 @@ type RSAPublicKey struct {
 	E *big.Int `json:"e"`
 	N *big.Int `json:"n"`
 }
+type RSAPublicKeyString struct {
+	E string `json:"e"`
+	N string `json:"n"`
+}
 type RSAPrivateKey struct {
 	D *big.Int `json:"d"`
 	N *big.Int `json:"n"`
@@ -21,6 +28,14 @@ type RSAPrivateKey struct {
 type RSA struct {
 	PubK  RSAPublicKey
 	PrivK RSAPrivateKey
+}
+
+type PackRSA struct {
+	PubK       string    `json:"pubK"`
+	PrivK      string    `json:"privK"`
+	Date       time.Time `json:"date"`
+	PubKSigned string    `json:"pubKSigned"`
+	Verified   bool      `json:"verified"`
 }
 
 func GenerateKeyPair() (rsa RSA) {
@@ -92,24 +107,24 @@ func DecryptInt(val int, privK RSAPrivateKey) int {
 	return int(m.Int64())
 }
 
-func Blind(m []int, r int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
+func Blind(m []int, r int, pubK RSAPublicKey) []int {
 	var mBlinded []int
 	rBigInt := big.NewInt(int64(r))
 	for i := 0; i < len(m); i++ {
 		mBigInt := big.NewInt(int64(m[i]))
 		rE := new(big.Int).Exp(rBigInt, pubK.E, nil)
 		mrE := new(big.Int).Mul(mBigInt, rE)
-		mrEmodN := new(big.Int).Mod(mrE, privK.N)
+		mrEmodN := new(big.Int).Mod(mrE, pubK.N)
 		mBlinded = append(mBlinded, int(mrEmodN.Int64()))
 	}
 	return mBlinded
 }
 
-func BlindSign(m []int, pubK RSAPublicKey, privK RSAPrivateKey) []int {
+func BlindSign(m []int, privK RSAPrivateKey) []int {
 	var r []int
 	for i := 0; i < len(m); i++ {
 		mBigInt := big.NewInt(int64(m[i]))
-		sigma := new(big.Int).Exp(mBigInt, privK.D, pubK.N)
+		sigma := new(big.Int).Exp(mBigInt, privK.D, privK.N)
 		r = append(r, int(sigma.Int64()))
 	}
 	return r
@@ -159,4 +174,54 @@ func HomomorphicMultiplication(c1 int, c2 int, pubK RSAPublicKey) int {
 	d := new(big.Int).Mod(c1c2, n2)
 	r := int(d.Int64())
 	return r
+}
+
+func PubKStringToBigInt(kS RSAPublicKeyString) (RSAPublicKey, error) {
+	var k RSAPublicKey
+	var ok bool
+	k.E, ok = new(big.Int).SetString(kS.E, 10)
+	if !ok {
+		return k, errors.New("error parsing big int E")
+	}
+	k.N, ok = new(big.Int).SetString(kS.N, 10)
+	if !ok {
+		return k, errors.New("error parsing big int N")
+	}
+	return k, nil
+}
+
+func PackKey(k RSA) PackRSA {
+	var p PackRSA
+	p.PubK = k.PubK.E.String() + "," + k.PubK.N.String()
+	p.PrivK = k.PrivK.D.String() + "," + k.PrivK.N.String()
+	return p
+}
+
+func UnpackKey(p PackRSA) RSA {
+	var k RSA
+	var ok bool
+	k.PubK.E, ok = new(big.Int).SetString(strings.Split(p.PubK, ",")[0], 10)
+	k.PubK.N, ok = new(big.Int).SetString(strings.Split(p.PubK, ",")[1], 10)
+	k.PrivK.D, ok = new(big.Int).SetString(strings.Split(p.PrivK, ",")[0], 10)
+	k.PrivK.N, ok = new(big.Int).SetString(strings.Split(p.PrivK, ",")[1], 10)
+	if !ok {
+		fmt.Println("error on Unpacking Keys")
+	}
+	return k
+}
+
+func ArrayIntToString(a []int, delim string) string {
+	return strings.Trim(strings.Replace(fmt.Sprint(a), " ", delim, -1), "[]")
+}
+func StringToArrayInt(s string, delim string) []int {
+	var a []int
+	arrayString := strings.Split(s, delim)
+	for _, s := range arrayString {
+		i, err := strconv.Atoi(s)
+		if err != nil {
+			fmt.Println(err)
+		}
+		a = append(a, i)
+	}
+	return a
 }

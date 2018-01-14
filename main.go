@@ -52,7 +52,7 @@ func main() {
 
 	//RSA blind signature
 	color.Magenta("RSA blind signature")
-	r := 101
+	rVal := 101
 	msg := "hola"
 	//convert msg to []int
 	var m []int
@@ -61,17 +61,21 @@ func main() {
 		m = append(m, int(byte))
 	}
 	//blind
-	mBlinded := ownRSA.BlindSign(m, rsa.PubK, rsa.PrivK) //here the pubK and privK is the user's one
+	mBlinded := ownRSA.Blind(m, rVal, rsa.PubK) //here the pubK and privK is the user's one
 	fmt.Print("Message blinded': ")
 	fmt.Println(mBlinded)
 	//sign
-	sigma := ownRSA.BlindSign(mBlinded, rsa.PubK, rsa.PrivK) //here the privK will be the CA privK, not the m emmiter's one. The pubK is the user's one
+	sigma := ownRSA.BlindSign(mBlinded, rsa.PrivK) //here the privK will be the CA privK, not the m emmiter's one. The pubK is the user's one
 	fmt.Print("Sigma': ")
 	fmt.Println(sigma)
 	//unblind
-	signature := ownRSA.Unblind(sigma, r, rsa.PubK)
-	fmt.Print("Sigma (signature): ")
-	fmt.Println(signature)
+	mSigned := ownRSA.Unblind(sigma, rVal, rsa.PubK) //here the pubK will be the CA pubK
+	fmt.Print("Sigma (mSigned): ")
+	fmt.Println(mSigned)
+	//verify
+	verified := ownRSA.Verify(m, mSigned, rsa.PubK)
+	fmt.Print("verified: ")
+	fmt.Println(verified)
 
 	color.Blue("\n-----\n\n\n")
 
